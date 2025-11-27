@@ -6,7 +6,7 @@ type DashboardRequest struct {
 }
 
 type DashboardResponse struct {
-	ID          int    `json:"id" validate:required`
+	ID          int    `json:"id" validate:"required"`
 	Title       string `json:"title" validate:"required"`
 	Description string `json:"description" validate:"required"`
 }

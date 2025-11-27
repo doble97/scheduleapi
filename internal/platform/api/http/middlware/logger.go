@@ -3,12 +3,20 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"runtime"
 	"time"
 )
 
 // LoggerMiddleware envuelve un http.Handler y registra la petición.
 func LoggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		pc, fie, line, ok := runtime.Caller(1)
+		if !ok {
+			log.Printf("ERROR: unable to get caller info")
+			return
+		}
+		funcName := runtime.FuncForPC(pc).Name()
+		log.Printf("Caller: %s %s:%d", funcName, fie, line)
 		start := time.Now()
 
 		// Creamos un ResponseWriter personalizado para capturar el código de estado.
