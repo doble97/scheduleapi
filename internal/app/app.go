@@ -29,7 +29,7 @@ func NewAppContext(gC config.GlobalConfig) *AppContext {
 		repo = mariadb.NewDashboardRepoMariaDB(db)
 		// defer db.Close()
 	}
-	var servi = services.NewDashboardService(repo)
+	servi := services.NewDashboardService(repo)
 	dashboardHandler := handler.NewDashboardHandler(servi)
 	userHandler := getUserHandler(gC.DBDsn)
 	return &AppContext{

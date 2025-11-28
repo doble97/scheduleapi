@@ -17,7 +17,22 @@ type authService struct {
 
 // Login implements servicesport.AuthService.
 func (a *authService) Login(ctx context.Context, req domain.User) (*domain.User, error) {
-	panic("unimplemented")
+	// TODO: Mejorar el manejo de errores para enviar  codigos HTTP más adecuados
+	existingUser, err := a.userRepo.GetUserByEmail(ctx, req.Email)
+	fmt.Println("22---->", existingUser, "----", req)
+	if err != nil {
+		return nil, domain.ErrorInternalServer
+	}
+	if existingUser == nil {
+		return nil, domain.ErrorInternalServer
+	}
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	err = bcrypt.CompareHashAndPassword([]byte(existingUser.Password), []byte(req.Password))
+	if err != nil {
+		return nil, domain.ErrorInternalServer
+	}
+
+	return existingUser, nil
 }
 
 // Register implements servicesport.AuthService.
@@ -39,10 +54,14 @@ func (a *authService) Register(ctx context.Context, req domain.User) (*domain.Us
 		Email:    req.Email,
 		Password: string(hashedPassword),
 	}
+	idUser, err := a.userRepo.SaveUser(ctx, user)
+	if err != nil {
+		return nil, domain.ErrorInternalServer
+	}
 	token := "JWT_GENERADO" + req.Email
 	fmt.Println("TOKEN---", token)
+	user.ID = idUser
 	return &user, nil
-
 }
 
 func NewAuthService(u ports.UserRepository) servicesport.AuthService {

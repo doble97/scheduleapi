@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/doble97/scheduleapi/internal/core/domain"
 	"github.com/doble97/scheduleapi/internal/core/ports"
@@ -19,6 +20,7 @@ func (u *UserRepoMariaDB) GetUserByEmail(ctx context.Context, email string) (*do
 	query := "SELECT id, name, last_name, email, password, created_at FROM users WHERE email = ?"
 	err := u.conn.QueryRowContext(ctx, query, email).Scan(&user.ID, &user.Name, &user.LastName, &user.Email, &user.Password, &user.CreatedAt)
 	if err != nil {
+		fmt.Println("Error en GetUserByEmail:", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, domain.ErrNotFound
 		}

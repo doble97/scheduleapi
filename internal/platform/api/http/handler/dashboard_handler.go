@@ -63,7 +63,7 @@ func (h *DashboardHandler) CreateDashboardHandler(w http.ResponseWriter, r *http
 		h.respondWithError(w, err)
 		return
 	}
-	var newDashboard = domain.Dashboard{
+	newDashboard := domain.Dashboard{
 		Title:       dashboard.Title,
 		Description: dashboard.Description,
 	}
@@ -75,7 +75,6 @@ func (h *DashboardHandler) CreateDashboardHandler(w http.ResponseWriter, r *http
 	}
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(util.DomainToDTOResponse(response))
-
 }
 
 func (h *DashboardHandler) GetManyDashboardsByIDUserHandler(w http.ResponseWriter, r *http.Request) {
