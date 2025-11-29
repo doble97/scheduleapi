@@ -13,6 +13,11 @@ TEST_ALL_DIR = ./internal/...
 TEST_SERVICE_DIR = ./internal/core/services/... 
 
 # --- TAREAS  ---
+.PHONY: reload
+reload: ## Correr la app con hot reload usando air
+	@echo "🔥 Iniciando la aplicación..."
+	air
+
 .PHONY: start
 start: ## Corre la aplicación principal.
 	@echo "🔥 Iniciando la aplicación..."

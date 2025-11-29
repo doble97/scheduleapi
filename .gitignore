@@ -1,2 +1,6 @@
 coverage.out
 internal/platform/api/http/mocks/*
+tmp/*
+.air.toml
+
+.

@@ -19,5 +19,6 @@ var (
 	ErrForbidden = errors.New("operation forbidden")
 
 	// Se usa para problemas de concurrencia o de bloqueo.
-	ErrConflict = errors.New("conflict occurred during update")
+	ErrConflict         = errors.New("conflict occurred during update")
+	ErrorInternalServer = errors.New("error internal server")
 )

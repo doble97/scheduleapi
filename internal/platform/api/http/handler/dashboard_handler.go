@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"log"
 	"net/http"
@@ -10,7 +9,9 @@ import (
 	"github.com/doble97/scheduleapi/internal/core/domain"
 	"github.com/doble97/scheduleapi/internal/core/ports"
 	"github.com/doble97/scheduleapi/internal/platform/api/http/dto"
+	"github.com/doble97/scheduleapi/internal/platform/api/http/util"
 	"github.com/doble97/scheduleapi/pkg/error_app"
+	"github.com/go-playground/validator/v10"
 )
 
 type DashboardHandler struct {
@@ -19,26 +20,11 @@ type DashboardHandler struct {
 
 func (h *DashboardHandler) respondWithError(w http.ResponseWriter, err error) {
 	// var mappedError apperrors.ErrorMapper
-	var mappedError error_app.ErrorMapper
+	mappedError := error_app.MapErrorToHTTP(err)
 
-	// 1. Mapeo de Errores de Dominio (Ej. 422, 409)
-	switch {
-	case errors.Is(err, domain.ErrInvalidData):
-		mappedError = error_app.InvalidInputError
-	case errors.Is(err, domain.ErrAlreadyExists):
-		mappedError = error_app.AlreadyExistsError
-
-	// 2. Mapeo de Errores de Adaptador (Ej. JSON Syntax Error)
-	case errors.Is(err, io.EOF),
-		errors.As(err, new(*json.SyntaxError)),
-		errors.As(err, new(*json.UnmarshalTypeError)):
-		mappedError = error_app.BadRequestError
-
-	default:
-		// Error por defecto si no coincide con ninguno conocido
-		mappedError = error_app.InternalServerError
+	if mappedError.HTTPStatus >= 500 {
+		log.Printf("ERROR 500: %v", err)
 	}
-
 	// 3. Crear la Respuesta JSON Estructurada
 	response := error_app.ErrorResponse{
 		Status: mappedError.HTTPStatus,
@@ -73,7 +59,11 @@ func (h *DashboardHandler) CreateDashboardHandler(w http.ResponseWriter, r *http
 		h.respondWithError(w, err)
 		return
 	}
-	var newDashboard = domain.Dashboard{
+	if err := validator.New().Struct(dashboard); err != nil {
+		h.respondWithError(w, err)
+		return
+	}
+	newDashboard := domain.Dashboard{
 		Title:       dashboard.Title,
 		Description: dashboard.Description,
 	}
@@ -84,8 +74,7 @@ func (h *DashboardHandler) CreateDashboardHandler(w http.ResponseWriter, r *http
 		return
 	}
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
-
+	json.NewEncoder(w).Encode(util.DomainToDTOResponse(response))
 }
 
 func (h *DashboardHandler) GetManyDashboardsByIDUserHandler(w http.ResponseWriter, r *http.Request) {
