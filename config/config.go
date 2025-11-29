@@ -11,8 +11,8 @@ import (
 type GlobalConfig struct {
 	ServerPort int
 	DBDsn      string
-	DbStage    string // Para diferenciar entornos de DB (local, test, etc.)
-
+	DBStage    string // Para diferenciar entornos de DB (local, test, etc.)
+	SecretKey  string
 	// Configuración del Entorno
 	Environment string // development, staging, production
 }
@@ -49,7 +49,7 @@ func LoadConfig() error {
 		return logAndError("MARIADB_DSN no puede estar vacío.")
 	}
 
-	cfg.DbStage = os.Getenv("DB_STAGE")
+	cfg.DBStage = os.Getenv("DB_STAGE")
 
 	// --- Configuración del Entorno ---
 
@@ -57,7 +57,10 @@ func LoadConfig() error {
 	if cfg.Environment == "" {
 		cfg.Environment = "development" // Valor por defecto
 	}
-
+	cfg.SecretKey = os.Getenv("SECRET_KEY")
+	if cfg.SecretKey == "" {
+		cfg.SecretKey = "Pruebas123@Secret"
+	}
 	// Almacenar la configuración cargada
 	Config = cfg
 	log.Printf("Configuración cargada. Entorno: %s, Puerto: %d", Config.Environment, Config.ServerPort)

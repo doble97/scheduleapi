@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/doble97/scheduleapi/internal/core/domain"
 	"github.com/doble97/scheduleapi/internal/core/ports"
@@ -19,7 +18,6 @@ type authService struct {
 func (a *authService) Login(ctx context.Context, req domain.User) (*domain.User, error) {
 	// TODO: Mejorar el manejo de errores para enviar  codigos HTTP más adecuados
 	existingUser, err := a.userRepo.GetUserByEmail(ctx, req.Email)
-	fmt.Println("22---->", existingUser, "----", req)
 	if err != nil {
 		return nil, domain.ErrorInternalServer
 	}
@@ -58,8 +56,6 @@ func (a *authService) Register(ctx context.Context, req domain.User) (*domain.Us
 	if err != nil {
 		return nil, domain.ErrorInternalServer
 	}
-	token := "JWT_GENERADO" + req.Email
-	fmt.Println("TOKEN---", token)
 	user.ID = idUser
 	return &user, nil
 }

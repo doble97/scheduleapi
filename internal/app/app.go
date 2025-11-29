@@ -18,7 +18,7 @@ type AppContext struct {
 
 func NewAppContext(gC config.GlobalConfig) *AppContext {
 	var repo ports.DashboardRepository
-	if gC.DbStage == "inmemory" {
+	if gC.DBStage == "inmemory" {
 		repo = inmemory.NewInMemoryDashboardRepo()
 	} else {
 		dsn := os.Getenv("DBDsn")

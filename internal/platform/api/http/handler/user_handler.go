@@ -11,6 +11,7 @@ import (
 	"github.com/doble97/scheduleapi/internal/core/domain"
 	servicesport "github.com/doble97/scheduleapi/internal/core/ports/services_port"
 	"github.com/doble97/scheduleapi/internal/platform/api/http/dto"
+	"github.com/doble97/scheduleapi/internal/platform/api/http/util"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -41,7 +42,18 @@ func (h *UserHandler) LoginHandler(w http.ResponseWriter, r *http.Request) error
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	result, err := h.service.Login(ctx, user)
-	json.NewEncoder(w).Encode(result)
+	if err != nil {
+		return err
+	}
+	token, err := util.GenerateJWT(*result)
+	if err != nil {
+		return err
+	}
+	authResponse := util.UserDomainToAuthResponse(*result, token)
+	if err != nil {
+		return err
+	}
+	json.NewEncoder(w).Encode(authResponse)
 	return nil
 }
 
