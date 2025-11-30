@@ -22,5 +22,4 @@ func main() {
 	if err := http.ListenAndServe(serveAddr, router); err != nil {
 		log.Fatalf("could not start server: %v", err)
 	}
-
 }
